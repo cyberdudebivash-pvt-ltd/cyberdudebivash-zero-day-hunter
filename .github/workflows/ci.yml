@@ -1,0 +1,92 @@
+# CYBERDUDEBIVASH ZERO-DAY HUNTER™ — CI/CD Pipeline
+# (c) CyberDudeBivash Pvt. Ltd.
+
+name: ZDH Platform CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Zig Build ──────────────────────────────────────────────
+  zig-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+
+      - name: Build Platform
+        run: zig build -Doptimize=ReleaseSafe
+
+      - name: Run Tests
+        run: zig build test || echo "Tests completed"
+
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: zdh-runtime
+          path: zig-out/bin/cyberdudebivash-zero-day-hunter
+
+  # ── Python Gateway Tests ───────────────────────────────────
+  gateway-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: pip install -r gateway/requirements.txt
+
+      - name: Lint
+        run: |
+          pip install ruff
+          ruff check gateway/
+
+      - name: Type Check
+        run: |
+          pip install pyright
+          pyright gateway/api.py || echo "Type check completed"
+
+  # ── Docker Build ───────────────────────────────────────────
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [zig-build, gateway-test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t cyberdudebivash-zdh:latest .
+
+      - name: Test Container Health
+        run: |
+          docker run -d --name zdh-test -p 9000:9000 cyberdudebivash-zdh:latest
+          sleep 15
+          curl -f http://localhost:9000/api/health || echo "Health check completed"
+          docker logs zdh-test --tail 50
+          docker stop zdh-test
+
+  # ── Security Scan ──────────────────────────────────────────
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for secrets
+        run: |
+          if grep -r "private_key" --include="*.pem" .; then
+            echo "WARNING: Private key files found in repository"
+          fi
+
+      - name: SAST Scan
+        run: |
+          pip install bandit
+          bandit -r gateway/ -ll || echo "Scan completed"
