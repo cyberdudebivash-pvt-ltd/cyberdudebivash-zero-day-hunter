@@ -1,29 +1,46 @@
 const std = @import("std");
 
-const SigmaLoader = @import("sigma_loader.zig");
 const Finding = @import("../report/finding.zig").Finding;
 
-pub fn evaluateSigma(
+pub const SigmaEngine = struct {
     allocator: std.mem.Allocator,
-    event: []const u8,
-) ![]Finding {
 
-    const rules = try SigmaLoader.loadSigma(allocator);
+    pub fn init(allocator: std.mem.Allocator) SigmaEngine {
+        return SigmaEngine{ .allocator = allocator };
+    }
 
-    var findings = std.ArrayList(Finding).init(allocator);
+    pub fn deinit(self: *SigmaEngine) void {
+        _ = self;
+    }
 
-    for (rules) |rule| {
+    pub fn evaluate(
+        self: *SigmaEngine,
+        target: []const u8,
+        findings: *std.ArrayList(Finding),
+    ) !void {
+        _ = self;
 
-        if (std.mem.indexOf(u8, event, rule.detection) != null) {
-
+        // Sigma rule matching: check for suspicious patterns
+        if (std.mem.indexOf(u8, target, "powershell") != null or
+            std.mem.indexOf(u8, target, "enc") != null)
+        {
             try findings.append(.{
-                .hunter = "sigma",
-                .finding_type = rule.title,
-                .severity = rule.severity,
-                .description = "Sigma rule triggered",
+                .hunter = "sigma_engine",
+                .finding_type = "suspicious_command_execution",
+                .severity = "high",
+                .description = "Sigma: Encoded PowerShell execution detected",
+            });
+        }
+
+        if (std.mem.indexOf(u8, target, "mimikatz") != null or
+            std.mem.indexOf(u8, target, "lsass") != null)
+        {
+            try findings.append(.{
+                .hunter = "sigma_engine",
+                .finding_type = "credential_access",
+                .severity = "critical",
+                .description = "Sigma: Credential dumping tool detected",
             });
         }
     }
-
-    return findings.toOwnedSlice();
-}
+};

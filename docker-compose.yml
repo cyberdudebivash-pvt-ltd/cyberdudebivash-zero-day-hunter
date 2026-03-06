@@ -1,0 +1,53 @@
+# CYBERDUDEBIVASH ZERO-DAY HUNTER™ — Docker Compose
+# Local development + production deployment
+# (c) CyberDudeBivash Pvt. Ltd.
+
+version: "3.9"
+
+services:
+  # ── ZDH Platform (Zig Runtime + API Gateway) ────────────────
+  zdh-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zdh-platform
+    ports:
+      - "9000:9000"
+    environment:
+      - ZDH_API_KEY=${ZDH_API_KEY:-cyberdudebivash-dev-key}
+      - GATEWAY_PORT=9000
+      - GATEWAY_WORKERS=2
+      - STATE_FILE=/app/data/state/platform_state.json
+      - REPORT_DIR=/app/reports
+    volumes:
+      - zdh-data:/app/data
+      - zdh-reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zdh-network
+
+  # ── Redis (Event Caching + State Store) ─────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: zdh-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - zdh-redis:/data
+    restart: unless-stopped
+    networks:
+      - zdh-network
+
+volumes:
+  zdh-data:
+  zdh-reports:
+  zdh-redis:
+
+networks:
+  zdh-network:
+    driver: bridge

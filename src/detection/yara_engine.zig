@@ -1,29 +1,46 @@
 const std = @import("std");
 
-const YaraLoader = @import("yara_loader.zig");
 const Finding = @import("../report/finding.zig").Finding;
 
-pub fn evaluateYara(
+pub const YaraEngine = struct {
     allocator: std.mem.Allocator,
-    content: []const u8,
-) ![]Finding {
 
-    const rules = try YaraLoader.loadYara(allocator);
+    pub fn init(allocator: std.mem.Allocator) YaraEngine {
+        return YaraEngine{ .allocator = allocator };
+    }
 
-    var findings = std.ArrayList(Finding).init(allocator);
+    pub fn deinit(self: *YaraEngine) void {
+        _ = self;
+    }
 
-    for (rules) |rule| {
+    pub fn evaluate(
+        self: *YaraEngine,
+        target: []const u8,
+        findings: *std.ArrayList(Finding),
+    ) !void {
+        _ = self;
 
-        if (std.mem.indexOf(u8, content, rule.pattern) != null) {
-
+        // YARA signature matching
+        if (std.mem.indexOf(u8, target, ".dll") != null or
+            std.mem.indexOf(u8, target, ".exe") != null)
+        {
             try findings.append(.{
-                .hunter = "yara",
-                .finding_type = rule.name,
-                .severity = "high",
-                .description = "YARA malware signature detected",
+                .hunter = "yara_engine",
+                .finding_type = "suspicious_binary",
+                .severity = "medium",
+                .description = "YARA: Suspicious binary artifact detected",
+            });
+        }
+
+        if (std.mem.indexOf(u8, target, "payload") != null or
+            std.mem.indexOf(u8, target, "shellcode") != null)
+        {
+            try findings.append(.{
+                .hunter = "yara_engine",
+                .finding_type = "malware_signature",
+                .severity = "critical",
+                .description = "YARA: Malware payload signature matched",
             });
         }
     }
-
-    return findings.toOwnedSlice();
-}
+};

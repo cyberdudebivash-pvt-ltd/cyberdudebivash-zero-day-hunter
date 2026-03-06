@@ -1,0 +1,10 @@
+{
+  "max_threads": 16,
+  "max_tasks": 1000,
+  "max_memory_bytes": 1073741824,
+  "enable_plugins": true,
+  "enable_ai_reasoning": true,
+  "enable_global_exchange": false,
+  "plugin_directory": "plugins",
+  "report_directory": "reports"
+}

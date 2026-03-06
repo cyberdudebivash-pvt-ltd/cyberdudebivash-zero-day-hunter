@@ -15,7 +15,7 @@ pub fn load(allocator: std.mem.Allocator) !std.ArrayList(rule_mod.Rule) {
 
     var dir = cwd.openDir(DEFAULT_RULE_PATH, .{
         .iterate = true,
-    }) catch |err| {
+    }) catch {
         std.log.warn("Rule directory not found: {s}", .{DEFAULT_RULE_PATH});
         return rules;
     };
@@ -54,7 +54,7 @@ fn loadRuleFile(
 
     const size = try file.getEndPos();
 
-    var buffer = try allocator.alloc(u8, size);
+    const buffer = try allocator.alloc(u8, size);
     defer allocator.free(buffer);
 
     _ = try file.readAll(buffer);

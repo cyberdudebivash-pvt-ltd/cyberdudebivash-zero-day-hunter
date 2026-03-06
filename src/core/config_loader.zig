@@ -62,13 +62,13 @@ pub const ConfigLoader = struct {
         const config = PlatformConfig{
 
             .max_threads =
-                root.object.get("max_threads").?.integer,
+                @intCast(root.object.get("max_threads").?.integer),
 
             .max_tasks =
-                root.object.get("max_tasks").?.integer,
+                @intCast(root.object.get("max_tasks").?.integer),
 
             .max_memory_bytes =
-                root.object.get("max_memory_bytes").?.integer,
+                @intCast(root.object.get("max_memory_bytes").?.integer),
 
             .enable_plugins =
                 root.object.get("enable_plugins").?.bool,

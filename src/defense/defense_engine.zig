@@ -26,6 +26,7 @@ pub const DefenseEngine = struct {
         target: []const u8,
         findings: *std.ArrayList(Finding),
     ) !void {
+        _ = self;
 
         std.log.info(
             "🛡 Defense Engine executing responses for {} findings on {s}",

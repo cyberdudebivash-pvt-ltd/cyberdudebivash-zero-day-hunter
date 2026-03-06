@@ -1,92 +1,61 @@
 const std = @import("std");
 
-const rule_loader = @import("rule_loader.zig");
-const rule_mod = @import("rule.zig");
-const Finding = @import("../hunters/interface.zig").Finding;
+const Finding = @import("../report/finding.zig").Finding;
 
 pub const RuleEngine = struct {
     allocator: std.mem.Allocator,
-    rules: std.ArrayList(rule_mod.Rule),
 
-    pub fn init(allocator: std.mem.Allocator) !RuleEngine {
-
-        std.log.info("Initializing rule engine", .{});
-
-        var engine = RuleEngine{
-            .allocator = allocator,
-            .rules = std.ArrayList(rule_mod.Rule).init(allocator),
-        };
-
-        try engine.loadRules();
-
-        return engine;
+    pub fn init(allocator: std.mem.Allocator) RuleEngine {
+        std.log.info("Initializing custom rule engine", .{});
+        return RuleEngine{ .allocator = allocator };
     }
 
-    fn loadRules(self: *RuleEngine) !void {
-
-        std.log.info("Loading detection rules", .{});
-
-        const loaded = try rule_loader.load(self.allocator);
-
-        for (loaded.items) |rule| {
-            try self.rules.append(rule);
-        }
-
-        std.log.info("Rules loaded: {}", .{self.rules.items.len});
+    pub fn deinit(self: *RuleEngine) void {
+        _ = self;
     }
 
-    /// Process findings through rule engine
-    pub fn process(
+    /// Evaluate custom detection rules against target
+    pub fn evaluate(
         self: *RuleEngine,
+        target: []const u8,
         findings: *std.ArrayList(Finding),
     ) !void {
+        _ = self;
 
-        std.log.info("Running rule engine against findings", .{});
-
-        if (self.rules.items.len == 0) {
-            std.log.warn("No rules loaded — skipping rule evaluation", .{});
-            return;
+        // Custom rule: Cloud metadata access
+        if (std.mem.indexOf(u8, target, "169.254.169.254") != null or
+            std.mem.indexOf(u8, target, "metadata") != null)
+        {
+            try findings.append(.{
+                .hunter = "rule_engine",
+                .finding_type = "metadata_service_access",
+                .severity = "high",
+                .description = "Cloud metadata endpoint access detected",
+            });
         }
 
-        for (findings.items) |*finding| {
-
-            for (self.rules.items) |rule| {
-
-                if (evaluate(rule, finding)) {
-
-                    std.log.info(
-                        "Rule matched: {s} → finding: {s}",
-                        .{ rule.name, finding.finding_type },
-                    );
-
-                    applyRule(rule, finding);
-                }
-            }
+        // Custom rule: Git exposure
+        if (std.mem.indexOf(u8, target, ".git") != null or
+            std.mem.indexOf(u8, target, "git_exposure") != null)
+        {
+            try findings.append(.{
+                .hunter = "rule_engine",
+                .finding_type = "public_git_repo",
+                .severity = "medium",
+                .description = "Public git repository exposure detected",
+            });
         }
 
-        std.log.info("Rule engine processing completed", .{});
+        // Custom rule: Suspicious process execution
+        if (std.mem.indexOf(u8, target, "cmd.exe") != null or
+            std.mem.indexOf(u8, target, "wscript") != null)
+        {
+            try findings.append(.{
+                .hunter = "rule_engine",
+                .finding_type = "suspicious_process",
+                .severity = "high",
+                .description = "Suspicious process execution detected",
+            });
+        }
     }
-
 };
-
-/// Evaluate whether a rule matches a finding
-fn evaluate(rule: rule_mod.Rule, finding: *Finding) bool {
-
-    if (std.mem.eql(u8, rule.finding_type, finding.finding_type)) {
-        return true;
-    }
-
-    return false;
-}
-
-/// Apply rule modifications to a finding
-fn applyRule(rule: rule_mod.Rule, finding: *Finding) void {
-
-    if (rule.override_severity) |severity| {
-        finding.severity = severity;
-    }
-
-    if (rule.override_description) |desc| {
-        finding.description = desc;
-    }
-}

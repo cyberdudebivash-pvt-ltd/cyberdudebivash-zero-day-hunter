@@ -82,11 +82,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    INGEST TELEMETRY
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // INGEST TELEMETRY
+    // --------------------------------------
+    //
 
     pub fn ingestTelemetry(
         self: *ThreatProcessingPipeline,
@@ -105,11 +105,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    NORMALIZATION STAGE
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // NORMALIZATION STAGE
+    // --------------------------------------
+    //
 
     pub fn normalizeTelemetry(self: *ThreatProcessingPipeline) !void {
 
@@ -133,11 +133,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    IOC EXTRACTION
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // IOC EXTRACTION
+    // --------------------------------------
+    //
 
     pub fn extractIOCs(
         self: *ThreatProcessingPipeline,
@@ -172,11 +172,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    THREAT CORRELATION
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // THREAT CORRELATION
+    // --------------------------------------
+    //
 
     pub fn correlateSignals(self: *ThreatProcessingPipeline) !void {
 
@@ -201,11 +201,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    RISK SCORING
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // RISK SCORING
+    // --------------------------------------
+    //
 
     pub fn scoreThreat(threat: CorrelatedThreat) RiskAssessment {
 
@@ -232,11 +232,11 @@ pub const ThreatProcessingPipeline = struct {
 
     }
 
-    /*
-    ---------------------------------------------------
-    PROCESS PIPELINE
-    ---------------------------------------------------
-    */
+    //
+    // --------------------------------------
+    // PROCESS PIPELINE
+    // --------------------------------------
+    //
 
     pub fn process(self: *ThreatProcessingPipeline) !void {
 
