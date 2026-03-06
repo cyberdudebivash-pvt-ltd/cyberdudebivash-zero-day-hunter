@@ -1,0 +1,9 @@
+{
+  "version": "2026.03",
+  "patterns": [
+    {"name": "memory_anomaly", "score": 85, "description": "Suspicious heap allocation pattern"},
+    {"name": "syscall_rop", "score": 95, "description": "ROP chain in syscall trace"},
+    {"name": "code_exposure", "score": 90, "description": "GitHub commit exposing zero-day"},
+    {"name": "behavioral_deviation", "score": 88, "description": "Process baseline violation"}
+  ]
+}

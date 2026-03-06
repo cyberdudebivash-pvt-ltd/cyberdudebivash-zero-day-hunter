@@ -1,0 +1,5 @@
+id=CDB-002
+hunter=code_exposure
+pattern=.git
+severity=medium
+description=Public Git repository exposure

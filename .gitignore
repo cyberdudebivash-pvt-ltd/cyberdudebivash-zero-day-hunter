@@ -1,0 +1,4 @@
+zig/ 
+venv/ 
+*.exe 
+*.so 

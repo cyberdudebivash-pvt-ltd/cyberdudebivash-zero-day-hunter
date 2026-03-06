@@ -1,0 +1,5 @@
+id=CDB-001
+hunter=cloud_escape
+pattern=169.254.169.254
+severity=high
+description=Cloud metadata access detected

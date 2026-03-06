@@ -1,0 +1,18 @@
+{
+  "target": "example.com",
+  "generated_at": 1772766090,
+  "findings": [
+    {
+      "hunter": "code_exposure",
+      "type": "public_git_repo",
+      "severity": "medium",
+      "description": "Potential Git repository exposure detected"
+    },
+    {
+      "hunter": "cloud_escape",
+      "type": "metadata_service_access",
+      "severity": "high",
+      "description": "Potential cloud metadata access vector detected"
+    }
+  ]
+}

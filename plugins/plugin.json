@@ -1,0 +1,9 @@
+{
+  "name": "rust_malware",
+  "version": "1.0.0",
+  "author": "CyberDudeBivash Research",
+  "description": "Detects Rust-based malware artifacts",
+  "entry": "rust_malware.so",
+  "signature": "ED25519_SIGNATURE",
+  "min_engine_version": "1.0"
+}

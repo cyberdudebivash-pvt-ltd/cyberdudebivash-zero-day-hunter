@@ -1,0 +1,9 @@
+{
+  "productName": "CYBERDUDEBIVASH Zero-Day Hunter",
+  "version": "1.0.0",
+  "identifier": "com.cyberdudebivash.zerodayhunter",
+  "build": {
+    "devPath": "../",
+    "distDir": "../"
+  }
+}

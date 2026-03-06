@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>CYBERDUDEBIVASH ZERO-DAY HUNTER™ — Threat Radar</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+background:#0b0f17;
+color:#e8f1ff;
+font-family:Orbitron, sans-serif;
+margin:0;
+}
+
+header{
+background:#101827;
+padding:15px 25px;
+font-size:20px;
+letter-spacing:1px;
+border-bottom:1px solid #1e293b;
+}
+
+.container{
+padding:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.card{
+background:#111827;
+border:1px solid #1f2937;
+border-radius:10px;
+padding:20px;
+}
+
+.card h3{
+margin-top:0;
+font-size:14px;
+color:#94a3b8;
+}
+
+.metric{
+font-size:32px;
+margin-top:10px;
+}
+
+.alert{
+padding:10px;
+border-bottom:1px solid #1f2937;
+font-size:13px;
+}
+
+.alert-critical{color:#ff4c4c}
+.alert-high{color:#ffa500}
+.alert-medium{color:#e6e600}
+
+.incident{
+padding:10px;
+border-bottom:1px solid #1f2937;
+font-size:13px;
+}
+
+.radar{
+height:350px;
+background:#05070c;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+color:#4ade80;
+border:1px solid #1f2937;
+}
+
+footer{
+text-align:center;
+padding:10px;
+font-size:12px;
+color:#64748b;
+margin-top:30px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+CYBERDUDEBIVASH ZERO-DAY HUNTER™ — SOC Threat Radar
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<div class="card">
+<h3>Global Risk Index</h3>
+<div id="risk" class="metric">0</div>
+</div>
+
+<div class="card">
+<h3>Active Incidents</h3>
+<div id="incidents_count" class="metric">0</div>
+</div>
+
+<div class="card">
+<h3>Critical Alerts</h3>
+<div id="critical" class="metric">0</div>
+</div>
+
+<div class="card">
+<h3>Cyber War Mode</h3>
+<div id="war_mode" class="metric">OFF</div>
+</div>
+
+</div>
+
+<br>
+
+<div class="grid">
+
+<div class="card">
+<h3>Threat Radar</h3>
+<div class="radar" id="radar">
+LIVE GLOBAL THREAT MONITOR
+</div>
+</div>
+
+<div class="card">
+<h3>Alert Feed</h3>
+<div id="alerts"></div>
+</div>
+
+<div class="card">
+<h3>Incidents</h3>
+<div id="incidents"></div>
+</div>
+
+</div>
+
+</div>
+
+<footer>
+CYBERDUDEBIVASH Cyber Defense Platform
+</footer>
+
+<script>
+
+const API="http://localhost:8080"
+
+async function loadMetrics(){
+
+const res=await fetch(API+"/api/metrics")
+const data=await res.json()
+
+document.getElementById("risk").innerText=data.global_risk.toFixed(2)
+document.getElementById("incidents_count").innerText=data.active_incidents
+document.getElementById("critical").innerText=data.critical_alerts
+
+document.getElementById("war_mode").innerText=data.cyber_war_mode?"ACTIVE":"OFF"
+
+}
+
+async function loadAlerts(){
+
+const res=await fetch(API+"/api/alerts")
+const alerts=await res.json()
+
+const el=document.getElementById("alerts")
+el.innerHTML=""
+
+alerts.slice(0,10).forEach(a=>{
+
+const div=document.createElement("div")
+
+let cls="alert"
+
+if(a.severity==="CRITICAL")cls+=" alert-critical"
+if(a.severity==="HIGH")cls+=" alert-high"
+
+div.className=cls
+
+div.innerHTML=
+"<b>"+a.severity+"</b> — "+a.message
+
+el.appendChild(div)
+
+})
+
+}
+
+async function loadIncidents(){
+
+const res=await fetch(API+"/api/incidents")
+const incidents=await res.json()
+
+const el=document.getElementById("incidents")
+el.innerHTML=""
+
+incidents.slice(0,10).forEach(i=>{
+
+const div=document.createElement("div")
+
+div.className="incident"
+
+div.innerHTML=
+"<b>"+i.title+"</b><br>Status: "+i.status
+
+el.appendChild(div)
+
+})
+
+}
+
+async function refresh(){
+
+await loadMetrics()
+await loadAlerts()
+await loadIncidents()
+
+}
+
+setInterval(refresh,3000)
+
+refresh()
+
+</script>
+
+</body>
+</html>
